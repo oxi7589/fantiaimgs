@@ -1,0 +1,146 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="fantiaimgs project page">
+    <meta name="keywords" content="fantiaimgs, fantia, archival tool">
+    <title>fantiaimgs :: project page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <style type="text/css">
+        html, body { height: 100%; }
+        body       { display: flex; flex-direction: column; }
+        .fi-header { flex: 0 0 auto; }
+        .fi-body   { flex: 1 0 auto; }
+        .fi-bottom { flex: 0 0 auto; }
+        .fi-center { text-align: center; }
+        .fi-nobr   { white-space: nowrap; }
+        .fi-devw   { max-width: 100%; }
+        .fi-contnt { max-width: 900px; margin-left:auto; margin-right:auto; }
+        img        { max-width: 100%; }
+    </style>
+</head>
+<body class="w3-white">
+<!-- header -->
+<div class="fi-header w3-bar w3-black">
+    <a href="https://github.com/oxi7589?tab=repositories" class="w3-bar-item w3-button">oxi's stuff</a>
+    <div class="w3-bar-item">::</div>
+    <a href="https://oxi7589.github.io/fantiaimgs/" class="w3-bar-item w3-button w3-purple w3-hover-pink">fantiaimgs</a>
+</div>
+<!-- content -->
+<div class="fi-body w3-container w3-white fi-devw">
+    <div class="fi-contnt">
+        <div class="fi-center">
+            <p><img src="fantiaimgs-logo-temp-640.png" alt="fantiaimgs"></p>
+            <p><em>a Fantia archival tool</em></p>
+            <p>
+                <a href="https://www.mediafire.com/file/5f3b4waiv83o0dl/fantiaimgs-17.exe/file" target="_blank" class="w3-button w3-purple w3-hover-pink">Download executable</a> 
+                <a href="https://github.com/oxi7589/fantiaimgs" target="_blank" class="w3-button w3-blue w3-hover-pink">fantiaimgs Github repo</a>
+            </p>
+            <p><em class="w3-small">v.1.7 (20191110)<br>for Windows and modern Unix-likes via Mono</em></p>
+            <br>
+            <p><em class="w3-small">
+             Older releases: 
+             <a href="https://www.mediafire.com/file/b7m2ukqhx2qyaya/fantiaimgs-16.exe/file" target="_blank" class="w3-tag w3-round w3-purple w3-hover-pink">1.6</a> 
+             <a href="https://www.mediafire.com/file/tsby05laupwp6ho/fantiaimgs-15.exe/file" target="_blank" class="w3-tag w3-round w3-purple w3-hover-pink">1.5</a> 
+            </em></p>
+            <br>
+            <p>
+                <a href="#sysreq" class="w3-text-purple">system requirements</a> |
+                <a href="#changes" class="w3-text-purple">changelog</a> |
+                <a href="#cmdargs" class="w3-text-purple">command line arguments</a> |
+                <a href="#faq" class="w3-text-purple">faq</a>
+            </p>
+        </div>
+        
+        <a id="sysreq"></a><h3>System requirements</h3>
+        <p><b>Windows</b>: .NET Framework 4.5 (comes with Windows 8, should be installed manually on Vista and 7), or mono.</p>
+        <p><b>Linux, Mac OS X, FreeBSD</b>: mono (earliest tested version is 5.10). If <span class="fi-nobr">"mono-complete"</span> package is available for your OS, install it.</p>
+
+        <a id="changes"></a><h3>Changelog</h3>
+	<p><b>v.1.7</b>:</p>
+        <p>Changed the _thumb rename rule. Added -imgnum parameter.</p>
+	<p><b>v.1.6</b>:</p>
+        <p>Added support for downloading custom background images.</p>
+        <p><b>v.1.5</b>:</p>
+        <p>Added command line parameters for easier use of fantiaimgs in batch/shell scripts and for a more precise behavior control (most notably in renaming output files).</p>
+
+        <a id="cmdargs"></a><h3>Command line arguments</h3>
+        <table class="w3-table w3-striped w3-responsive">
+            <tr>
+              <th>Argument</th>
+              <th>Description</th>
+            </tr>
+            <tr>
+              <td>-h, -help</td>
+              <td>Prints supported command line arguments and exits.</td>
+            </tr>
+            <tr>
+              <td>-club <em>123</em></td>
+              <td>Digital ID of the fanclub to dump. For example, "11791" for https://fantia.jp/fanclubs/11791.<br>If not specified, user will be prompted to enter it manually.</td>
+            </tr>
+            <tr>
+              <td>-name <em>ABC</em></td>
+              <td>Specifies the name of the folder to dump data into. To avoid issues prefer to use short ASCII filenames.<br>If not specified, user will be prompted unless "-club" argument is also present, in which case club ID will also be used as a folder name.</td>
+            </tr>
+            <tr>
+              <td>-cookiefile <em>FILE</em></td>
+              <td>Tells fantiaimgs to look for a _session_id cookie value in the specified <em>FILE</em>. May be an absolute path or relative to the current working directory.<br>If not specified, "_session_id.txt" file is assumed. If specified file does not exist, user will be prompted to enter that cookie value.</td>
+            </tr>
+            <tr>
+              <td>-subp</td>
+              <td>Prepends an index of subpost within a post to the filenames. Helpful to avoid most naming conflicts when used together with "-nh".</td>
+            </tr>
+            <tr>
+              <td>-imgnum</td>
+              <td>Prepends an index of an image within a post to the filenames. When used together with "-subp", subpost index goes first.</td>
+            </tr>
+            <tr>
+              <td>-nh</td>
+              <td>Removes a small hashsum in the beginning of filenames, i.e 1234abcd_File.png -&gt; File.png<br>Note that it may cause name conflicts, especially when used without "-subp". In this case, a "+" character will be prepended to the newer conflicting name.</td>
+            </tr>
+            <tr>
+              <td>-keepthumbnames</td>
+              <td>By default fantiaimgs will rename post thumbnail pictures to "_thumb" starting with v.1.5<sup>Changed in 1.7</sup>. If this is not a desired behavior, use this switch.<br><em>In versions prior to 1.7, this feature used a filename template on all pictures in post, which could misinterpret non-thumb pictures as such.</em></td>
+            </tr>
+            <tr>
+              <td>-nometa</td>
+              <td>If specified, header image, fanclub icon and the custom background image will not be downloaded.</td>
+            </tr>
+        </table>
+        <p>When not specified otherwise explicitly, arguments listed above are applicable to the latest stable version.</p>
+
+        <a id="faq"></a><h3>FAQ</h3>
+        <table class="w3-table w3-striped w3-responsive">
+            <thead><!-- this inverts stripes -->
+            <tr class="w3-light-grey">
+              <td><a id="faq-free"></a>Is this a free software?</td>
+            </tr>
+            </thead>
+            <tr>
+              <td>Yes. You can find the source code on Github.</td>
+            </tr>
+            <!-- q -->
+            <tr>
+              <td><a id="faq-hacka"></a>Will this tool let me download paid content for free?</td>
+            </tr>
+            <tr>
+              <td>No. That's why you need a valid cookie to use it. For example, if you provide a cookie given out to guests, you'll only be able to download content visible to guests. Note that most fanclubs make a lot more content available to a 0 yen level subscriber than to an unregistered user, so having an account is worth it even if you don't intend to pay anyone.</td>
+            </tr>
+            <!-- q -->
+            <tr>
+              <td><a id="faq-contact"></a>How can I suggest a feature or report a bug?</td>
+            </tr>
+            <tr>
+              <td>One option is to DM <em class="w3-text-green">oxi98144#5772</em> on Discord, another one is to <a href="https://github.com/oxi7589/fantiaimgs/issues">post an issue on the Github page</a></td>
+            </tr>
+        </table>
+    </div>
+</div>
+<!-- footer -->
+<div class="fi-bottom w3-bar w3-black">
+    <div class="w3-bar-item">&copy; 2020 oxi</div>
+    <div class="w3-bar-item w3-small">this is a fanmade tool;<br>its authors are not affiliated with Fantia or Toranoara Inc.</div>
+</div>
+</body>
+</html>

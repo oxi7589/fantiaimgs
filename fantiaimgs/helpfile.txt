@@ -1,0 +1,43 @@
+Recognized command line arguments:
+
+-club 123
+    Digital ID of the fanclub to dump. For example,
+    "11791" for https://fantia.jp/fanclubs/11791
+    If not specified, user will be prompted
+
+-name ABC
+    Specifies the name of the folder to dump data into.
+    If not specified, user will be prompted unless 
+    "-club" argument is also present, in which case 
+    club ID will also be used as a folder name.
+
+-cookiefile FILE
+    Tells fantiaimgs to look for a _session_id 
+    cookie value in the specified FILE.
+    If not specified, "_session_id.txt" file is assumed.
+    If specified file does not exist, user will be prompted
+    to enter that cookie value manually.
+
+-subp
+    Prepends an index of subpost within a post to the filenames.
+    Helpful to avoid most naming conflicts when used with "-nh".
+
+-imgnum
+    Prepends an index of an image within a post to the filenames.
+    When used together with "-subp", subpost index goes first.
+
+-nh
+    Removes a small hashsum in the beginning of filenames,
+    i.e 1234abcd_File.png -> File.png
+    Note that it may cause name conflicts, especially 
+    when used without "-subp". In this case, a "+" character
+    will be prepended to the newer conflicting name.
+
+-keepthumbnames
+    By default fantiaimgs will rename thumbnail files matching
+    "^........-....-....-....-............" pattern to "_thumb".
+    If this is not a desired behavior, use this switch.
+
+-nometa
+    If specified, header image, fanclub icon and BGs are ignored.
+
