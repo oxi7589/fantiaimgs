@@ -18,6 +18,15 @@ Recognized command line arguments:
     If specified file does not exist, user will be prompted
     to enter that cookie value manually.
 
+-upd
+    Allow the detection of modified posts.
+    Note that any changes are enough to trigger redownloading,
+    even if no media content has been changed.
+
+-since DATE
+    Only care for the posts that got updated after DATE.
+    Don't forget to enclose DATE with quotes if it has spaces.
+
 -subp
     Prepends an index of subpost within a post to the filenames.
     Helpful to avoid most naming conflicts when used with "-nh".

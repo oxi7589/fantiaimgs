@@ -1,5 +1,7 @@
 ﻿// 2019-2020, by Oxi
 
+#define DIAG_SAVE_POST_JSON
+
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -15,7 +17,7 @@ namespace fantiaimgs
     {
         public static class StringConstants
         {
-            public const string ProductName = "fantiaimgs/1.7 by Oxi";
+            public const string ProductName = "fantiaimgs/1.8b by Oxi";
 
             public static readonly IList<String> QualityPostfix = new ReadOnlyCollection<string>(
                 new List<String> {
@@ -30,9 +32,12 @@ namespace fantiaimgs
             public bool RenamePolicyPrependImageIdx = false;
             public bool RenamePolicyRenameThumbs = true;
             public bool DownloadPolicyGetMetaPics = true;
+            public bool CheckModifiedPosts = true;
             public string FanclubId = "";
             public string FanclubName = "";
             public string CookieFile = "_session_id.txt";
+            public DateTime EarliestValidDate = new DateTime(2020, 2, 20);//new DateTime(0);
+            public Dictionary<string, DateTime> PublicationDates = new Dictionary<string, DateTime>();
         }
 
         static AppConfig CurrentAppConfig = new AppConfig();
@@ -64,12 +69,14 @@ namespace fantiaimgs
             }
 
             var rootrelpath = CurrentNetworkState.GetRoot();
-            var postpath = Path.Combine(Path.Combine("./", rootrelpath != null ? rootrelpath : "unknown"), postId);
-            if (System.IO.Directory.Exists(postpath))
+            if (rootrelpath == null) rootrelpath = "unknown";
+            var postpathEx = Path.Combine(Path.Combine("./", rootrelpath), postId);
+            if (System.IO.Directory.Exists(postpathEx) && !CurrentAppConfig.CheckModifiedPosts)
             {
                 Console.WriteLine($"Skipping: {postId} (folder exists)");
                 return;
             }
+
             string postJsonPage = CurrentNetworkState.GetPage(String.Format("https://fantia.jp/api/v1/posts/{0}", postId));
             if (postJsonPage == null) return;
 
@@ -84,6 +91,43 @@ namespace fantiaimgs
             }
             postInfoJsonRoot = (Dictionary<string, object>)postInfoJsonRoot.First().Value;
 
+            var directoryName = postId;
+            if (postInfoJsonRoot.ContainsKey("posted_at"))
+            {
+                var posted_at_str = (string)postInfoJsonRoot["posted_at"];
+                DateTime posted_at_val = DateTime.Parse(posted_at_str).ToUniversalTime();
+                if (posted_at_val < CurrentAppConfig.EarliestValidDate)
+                {
+                    Console.WriteLine("Post too old, skipped.");
+                    return;
+                }
+                if (CurrentAppConfig.PublicationDates.ContainsKey(postId))
+                {
+                    if (posted_at_val == CurrentAppConfig.PublicationDates[postId])
+                    {
+                        Console.WriteLine("Already downloaded, skipped.");
+                        return;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Post could have been updated, re-downloading");
+                        directoryName += ("." + posted_at_val.Ticks.ToString());
+                    }
+                }
+                CurrentAppConfig.PublicationDates[postId] = posted_at_val;
+            }
+
+            var postpath = Path.Combine(Path.Combine("./", rootrelpath), directoryName);
+            if (System.IO.Directory.Exists(postpath))
+            {
+                Console.WriteLine($"Skipping: {postId} (folder exists)");
+                return;
+            }
+
+#if DIAG_SAVE_POST_JSON
+            File.WriteAllText(postpath+".post.json", postJsonPage);
+#endif
+
             if (postInfoJsonRoot.ContainsKey("thumb"))
             {                
                 var thumb = (Dictionary<string, object>)postInfoJsonRoot["thumb"];
@@ -95,7 +139,7 @@ namespace fantiaimgs
                         fnameTransorms.Add((string s) => Regex.Replace(s, "^........-....-....-....-............", "_thumb"));
                     try
                     {
-                        CurrentNetworkState.DownloadFile(url, postId, fnameTransorms);
+                        CurrentNetworkState.DownloadFile(url, directoryName, fnameTransorms);
                     }
                     finally
                     {
@@ -142,7 +186,7 @@ namespace fantiaimgs
 
                             try
                             {
-                                CurrentNetworkState.DownloadFile(url, postId, fnameTransorms);
+                                CurrentNetworkState.DownloadFile(url, directoryName, fnameTransorms);
                             }
                             finally
                             {
@@ -157,7 +201,7 @@ namespace fantiaimgs
                     {
                         foundSomethingWorthy = true;
                         var downloadUrl = "https://fantia.jp" + (string)contentsObject["download_uri"];
-                        CurrentNetworkState.DownloadFile(downloadUrl, postId, fnameTransorms);
+                        CurrentNetworkState.DownloadFile(downloadUrl, directoryName, fnameTransorms);
                     }
                     if (!foundSomethingWorthy)
                     {
@@ -278,6 +322,12 @@ namespace fantiaimgs
             Console.WriteLine("Total posts: " + posts.Count.ToString());
             foreach (string post in posts)
             {
+                if (CurrentAppConfig.PublicationDates.ContainsKey(post)
+                    && CurrentAppConfig.CheckModifiedPosts)
+                {
+                    Console.WriteLine("Reached an already downloaded post, no need to dig deeper.");
+                    return;
+                }
                 ProcessPost(post);
             }
         }
@@ -285,6 +335,16 @@ namespace fantiaimgs
         static void Main(string[] args)
         {
             Console.WriteLine(StringConstants.ProductName);
+
+            // load publication dates "db"
+            const string PubDatesDbFilename = "./fantiaimgs.posts.json";
+            var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            if (File.Exists(PubDatesDbFilename))
+            {
+                CurrentAppConfig.PublicationDates = serializer.Deserialize<Dictionary<string, DateTime>>(
+                    File.ReadAllText(PubDatesDbFilename)
+                );
+            }
 
             // check subarguments count and handle help requests
             for (int i = 0; i < args.Count(); i++)
@@ -294,6 +354,7 @@ namespace fantiaimgs
                     case "-club":
                     case "-name":
                     case "-cookiefile":
+                    case "-since":
                         if (i + 1 >= args.Count() || (args[i + 1] != "" && args[i + 1][0] == '-'))
                         {
                             Console.WriteLine(string.Format("Error: \"{0}\" must be followed by its argument.", args[i]));
@@ -347,6 +408,12 @@ namespace fantiaimgs
                         break;
                     case "-cookiefile":
                         CurrentAppConfig.CookieFile = args[++i];
+                        break;
+                    case "-since":
+                        CurrentAppConfig.EarliestValidDate = DateTime.Parse(args[++i]);
+                        break;
+                    case "-upd":
+                        CurrentAppConfig.CheckModifiedPosts = true;
                         break;
                     case "-nometa":
                         CurrentAppConfig.DownloadPolicyGetMetaPics = false;
@@ -426,6 +493,10 @@ namespace fantiaimgs
             if (hrname != "") CurrentNetworkState.SetRootDest(hrname);
 
             ProcessFanclub(fanclub);
+
+            // dump "db"
+            File.WriteAllText(PubDatesDbFilename, serializer.Serialize(CurrentAppConfig.PublicationDates));
+
             Console.WriteLine("Done!");
         }
     }
