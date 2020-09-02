@@ -32,11 +32,11 @@ namespace fantiaimgs
             public bool RenamePolicyPrependImageIdx = false;
             public bool RenamePolicyRenameThumbs = true;
             public bool DownloadPolicyGetMetaPics = true;
-            public bool CheckModifiedPosts = true;
+            public bool CheckModifiedPosts = false;
             public string FanclubId = "";
             public string FanclubName = "";
             public string CookieFile = "_session_id.txt";
-            public DateTime EarliestValidDate = new DateTime(2020, 2, 20);//new DateTime(0);
+            public DateTime EarliestValidDate = new DateTime(0);
             public Dictionary<string, DateTime> PublicationDates = new Dictionary<string, DateTime>();
         }
 
